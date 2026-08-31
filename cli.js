@@ -40,6 +40,10 @@ const CLI_PARAMS = {
     help: "Print summary json to the console.",
     param: "dumpJSONResults",
   },
+  "dump-raw-results": {
+    help: "Print raw per-iteration results json to the console.",
+    param: "dumpRawResults",
+  },
   "dump-test-list": {
     help: "Print the selected test list instead of running.",
     param: "dumpTestList",

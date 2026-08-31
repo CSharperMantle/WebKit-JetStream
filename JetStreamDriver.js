@@ -452,6 +452,7 @@ class Driver {
 
         this.reportScoreToRunBenchmarkRunner();
         this.dumpJSONResultsIfNeeded();
+        this.dumpRawResultsIfNeeded();
         this.isDone = true;
 
         if (isInBrowser) {
@@ -631,6 +632,31 @@ class Driver {
         if (JetStreamParams.dumpJSONResults) {
             console.log("\n");
             console.log(this.resultsJSON());
+            console.log("\n");
+        }
+    }
+
+    rawResultsObject()
+    {
+        const benchmarks = [];
+        for (const benchmark of this.benchmarks)
+            benchmarks.push(benchmark.rawResultsObject());
+        return {"JetStream3.0-raw": {
+            "timestamp": new Date().toISOString(),
+            "benchmarks": benchmarks,
+        }};
+    }
+
+    rawResultsJSON()
+    {
+        return JSON.stringify(this.rawResultsObject());
+    }
+
+    dumpRawResultsIfNeeded()
+    {
+        if (JetStreamParams.dumpRawResults) {
+            console.log("\n");
+            console.log(this.rawResultsJSON());
             console.log("\n");
         }
     }
@@ -996,6 +1022,15 @@ class Benchmark {
 
     subTimes() {
         throw new Error("Subclasses need to implement this");
+    }
+
+    rawResultsObject() {
+        return {
+            name: this.name,
+            iterations: this.iterations,
+            worstCaseCount: ("worstCaseCount" in this) ? this.worstCaseCount : undefined,
+            results: this.results,
+        };
     }
 
     allScores() {
@@ -1469,6 +1504,14 @@ class GroupedBenchmark extends Benchmark {
         for (let subTimes in results)
             results[subTimes] = sum(results[subTimes]);
         return results;
+    }
+
+    rawResultsObject() {
+        return {
+            name: this.name,
+            iterations: this.iterations,
+            subbenchmarks: this.benchmarks.map(benchmark => benchmark.rawResultsObject()),
+        };
     }
 };
 
